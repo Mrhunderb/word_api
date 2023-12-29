@@ -8,5 +8,6 @@ import (
 func main() {
 	r := gin.Default()
 	db.Connect()
+	initRouter(r)
 	r.Run()
 }
