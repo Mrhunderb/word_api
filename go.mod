@@ -1,4 +1,4 @@
-module github.com/actionX/com.word.api
+module github.com/actionX/api
 
 go 1.21.5
 
