@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/actionX/com.word.api/db"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	fmt.Println("Hello, Go!")
+	r := gin.Default()
+	db.Connect()
+	r.Run()
 }
