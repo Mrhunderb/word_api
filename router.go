@@ -14,4 +14,12 @@ func initRouter(r *gin.Engine) {
 	// basic apis
 	apiRouter.POST("/user/login/", handler.Login)
 	apiRouter.POST("/user/register/", handler.Register)
+	apiRouter.GET("/user/info/", handler.GetInfo)
+
+	apiRouter.GET("/dict/list/", handler.DictList)
+	apiRouter.GET("/dict/", handler.GetDict)
+
+	apiRouter.GET("/plan/", handler.GetPlan)
+
+	apiRouter.GET("/word/today/", handler.GetWordToday)
 }

@@ -15,5 +15,115 @@ func Connect() {
 		panic("Could not connect to the database")
 	}
 	DB = db
+	DB.AutoMigrate(&Dict{}, &User{}, &Word{}, &Example{}, &Definition{}, &Plan{})
 	fmt.Println("Database connection successful.")
+}
+
+func GetDictList() []Dict {
+	var dicts []Dict
+	DB.Find(&dicts)
+	return dicts
+}
+
+func FindUser(username string, password string) (*User, error) {
+	var user User
+	result := DB.First(&user, "user_name = ?", username)
+	if result.Error == nil {
+		if user.Password == password {
+			return &user, nil
+		} else {
+			return nil, fmt.Errorf("密码错误")
+		}
+	} else {
+		return nil, fmt.Errorf("用户不存在")
+	}
+}
+
+func FindUserByID(user_id int) (*User, error) {
+	var user User
+	result := DB.First(&user, "user_id = ?", user_id)
+	if result.Error == nil {
+		return &user, nil
+	} else {
+		return nil, fmt.Errorf("用户不存在")
+	}
+}
+
+func InsertUser(username string, password string) (*User, error) {
+	var user User
+	result := DB.First(&user, "user_name = ?", username)
+	if result.Error == nil {
+		return nil, fmt.Errorf("用户已经存在")
+	} else {
+		DB.Create(&User{
+			UserName: username,
+			Password: password,
+		})
+		return &user, nil
+	}
+}
+
+func FindPlanByUserID(user_id int) (*Plan, error) {
+	var user User
+	var plan Plan
+	result := DB.First(&user, "user_id = ?", user_id)
+	if result.Error != nil {
+		return nil, fmt.Errorf("用户不存在")
+	}
+	result = DB.First(&plan, "plan_id = ?", user.PlanID)
+	if result.Error == nil {
+		return &plan, nil
+	} else {
+		return nil, fmt.Errorf("计划不存在")
+	}
+}
+
+func FindPlan(plan_id int) (*Plan, error) {
+	var plan Plan
+	result := DB.First(&plan, "plan_id = ?", plan_id)
+	if result.Error == nil {
+		return &plan, nil
+	} else {
+		return nil, fmt.Errorf("计划不存在")
+	}
+}
+
+func FindDict(dict_id int) (*Dict, error) {
+	var dict Dict
+	result := DB.First(&dict, "dict_id = ?", dict_id)
+	if result.Error == nil {
+		return &dict, nil
+	} else {
+		return nil, fmt.Errorf("词典不存在")
+	}
+}
+
+func FindWordByAlpha(dict_id int, limit int) ([]*Word, error) {
+	var words []*Word
+	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Order("word").Find(&words)
+	if result.Error == nil {
+		return words, nil
+	} else {
+		return nil, fmt.Errorf("词典不存在")
+	}
+}
+
+func FindWordByAlphaDesc(dict_id int, limit int) ([]*Word, error) {
+	var words []*Word
+	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Order("word DESC").Find(&words)
+	if result.Error == nil {
+		return words, nil
+	} else {
+		return nil, fmt.Errorf("词典不存在")
+	}
+}
+
+func FindWordByRandom(dict_id int, limit int) ([]*Word, error) {
+	var words []*Word
+	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Find(&words)
+	if result.Error == nil {
+		return words, nil
+	} else {
+		return nil, fmt.Errorf("词典不存在")
+	}
 }
