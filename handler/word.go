@@ -8,22 +8,41 @@ import (
 )
 
 func GetWordToday(c *gin.Context) {
-	n_learn := c.Query("n_learn")
-	learn_type := c.Query("type")
-	dict_id := c.Query("dict_id")
-	learn, _ := strconv.Atoi(n_learn)
-	dict, _ := strconv.Atoi(dict_id)
-	t, _ := strconv.Atoi(learn_type)
 	var words []*db.Word
 	var err error
-	if t == 1 {
-		words, err = db.FindWordByAlpha(dict, learn)
-
-	} else if t == 2 {
-		words, err = db.FindWordByAlphaDesc(dict, learn)
-	} else if t == 3 {
-		words, err = db.FindWordByRandom(dict, learn)
+	plan_id := c.Query("plan_id")
+	plan, err := db.FindPlan(plan_id)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"Words": nil,
+		})
+		return
 	}
+	if plan.Mode == 1 {
+		words, err = db.FindWordByAlpha(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+	} else if plan.Mode == 2 {
+		words, err = db.FindWordByAlphaDesc(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+	} else if plan.Mode == 3 {
+		words, err = db.FindWordByRandom(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+	}
+	if err != nil {
+		c.JSON(200, gin.H{
+			"Words": nil,
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"Words": words,
+	})
+}
+
+func GetAllWord(c *gin.Context) {
+	var words []*db.Word
+	var err error
+	dict_id := c.Query("dict_id")
+	offset := c.Query("offset")
+	n_offset, _ := strconv.Atoi(offset)
+	words, err = db.FindAllWord(dict_id, n_offset)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"Words": nil,

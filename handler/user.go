@@ -67,8 +67,7 @@ func Login(c *gin.Context) {
 
 func GetInfo(c *gin.Context) {
 	user_id := c.Query("user_id")
-	id, _ := strconv.Atoi(user_id)
-	user, err := db.FindUserByID(id)
+	user, err := db.FindUserByID(user_id)
 	if user == nil {
 		c.JSON(http.StatusOK, InfoRespon{
 			StatusCode: 1,

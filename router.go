@@ -22,4 +22,5 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/plan/", handler.GetPlan)
 
 	apiRouter.GET("/word/today/", handler.GetWordToday)
+	apiRouter.GET("/word/all/", handler.GetAllWord)
 }
