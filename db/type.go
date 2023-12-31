@@ -23,7 +23,6 @@ type Dict struct {
 	CoverUrl   string `gorm:"type:varchar(255)"`
 	TotalWords int32  `gorm:"type:int"`
 	Word       []Word `gorm:"foreignKey:DictID"`
-	Plan       []Plan `gorm:"foreignKey:DictID"`
 }
 
 type Word struct {
@@ -33,6 +32,7 @@ type Word struct {
 	DictID        int32        `gorm:"type:int"`
 	Example       []Example    `gorm:"foreignKey:WordID"`
 	Definition    []Definition `gorm:"foreignKey:WordID"`
+	Quiz          Quiz         `gorm:"foreignKey:WordID"`
 }
 
 type Example struct {
@@ -57,4 +57,21 @@ type Plan struct {
 	Progress int32 `gorm:"type:int"`
 	UserID   int32 `gorm:"type:int"`
 	DictID   int32 `gorm:"type:int"`
+}
+
+type Quiz struct {
+	QuizID        int32  `gorm:"type:int;primaryKey;autoIncrement:true"`
+	OptionA       string `gorm:"type:varchar(255)"`
+	OptionB       string `gorm:"type:varchar(255)"`
+	OptionC       string `gorm:"type:varchar(255)"`
+	OptionD       string `gorm:"type:varchar(255)"`
+	CorrectOption int32  `gorm:"type:int"`
+	WordID        int32  `gorm:"type:int"`
+}
+
+type Collection struct {
+	CollectionID int32     `gorm:"type:int;primaryKey;autoIncrement:true"`
+	WordID       int32     `gorm:"type:int"`
+	UserID       int32     `gorm:"type:int"`
+	AddTime      time.Time `gorm:"autoCreateTime"`
 }

@@ -15,7 +15,8 @@ func Connect() {
 		panic("Could not connect to the database")
 	}
 	DB = db
-	DB.AutoMigrate(&Dict{}, &User{}, &Word{}, &Example{}, &Definition{}, &Plan{})
+	DB.AutoMigrate(&Dict{}, &User{}, &Word{}, &Example{},
+		&Definition{}, &Plan{}, &Quiz{}, &Collection{})
 	fmt.Println("Database connection successful.")
 }
 
@@ -39,7 +40,7 @@ func FindUser(username string, password string) (*User, error) {
 	}
 }
 
-func FindUserByID(user_id int) (*User, error) {
+func FindUserByID(user_id string) (*User, error) {
 	var user User
 	result := DB.First(&user, "user_id = ?", user_id)
 	if result.Error == nil {
@@ -78,7 +79,7 @@ func FindPlanByUserID(user_id int) (*Plan, error) {
 	}
 }
 
-func FindPlan(plan_id int) (*Plan, error) {
+func FindPlan(plan_id string) (*Plan, error) {
 	var plan Plan
 	result := DB.First(&plan, "plan_id = ?", plan_id)
 	if result.Error == nil {
@@ -98,9 +99,10 @@ func FindDict(dict_id int) (*Dict, error) {
 	}
 }
 
-func FindWordByAlpha(dict_id int, limit int) ([]*Word, error) {
+func FindWordByAlpha(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
-	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Order("word").Find(&words)
+	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
+		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Order("word").Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
@@ -108,9 +110,10 @@ func FindWordByAlpha(dict_id int, limit int) ([]*Word, error) {
 	}
 }
 
-func FindWordByAlphaDesc(dict_id int, limit int) ([]*Word, error) {
+func FindWordByAlphaDesc(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
-	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Order("word DESC").Find(&words)
+	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
+		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Order("word DESC").Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
@@ -118,12 +121,35 @@ func FindWordByAlphaDesc(dict_id int, limit int) ([]*Word, error) {
 	}
 }
 
-func FindWordByRandom(dict_id int, limit int) ([]*Word, error) {
+func FindWordByRandom(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
-	result := DB.Preload("Definition").Preload("Example").Limit(limit).Where("dict_id = ?", dict_id).Find(&words)
+	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
+		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
 		return nil, fmt.Errorf("词典不存在")
+	}
+}
+
+func FindAllWord(dict_id string, offset int) ([]*Word, error) {
+	var words []*Word
+	result := DB.Preload("Definition").Preload("Example").
+		Where("dict_id = ?", dict_id).Limit(50).Offset(offset).Find(&words)
+	if result.Error == nil {
+		return words, nil
+	} else {
+		return nil, fmt.Errorf("词典不存在")
+	}
+}
+
+func FindUserCollection(user_id string) ([]*Word, error) {
+	var words []*Word
+	subquery := DB.Table("collections").Select("word_id").Where("user_id = ?", user_id)
+	result := DB.Preload("Definition").Preload("Example").Where("word_id IN (?)", subquery).Find(&words)
+	if result.Error == nil {
+		return words, nil
+	} else {
+		return nil, fmt.Errorf("生词本为空")
 	}
 }

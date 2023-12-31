@@ -53,3 +53,19 @@ func GetAllWord(c *gin.Context) {
 		"Words": words,
 	})
 }
+
+func GetCollectWord(c *gin.Context) {
+	var words []*db.Word
+	var err error
+	user_id := c.Query("user_id")
+	words, err = db.FindUserCollection(user_id)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"Words": nil,
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"Words": words,
+	})
+}
