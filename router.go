@@ -19,6 +19,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/user/plan/", handler.GetUserPlan)
 
 	apiRouter.POST("/collect/add/", handler.AddCollectWord)
+	apiRouter.POST("/collect/delete/", handler.DeletCollect)
 
 	apiRouter.GET("/dict/list/", handler.DictList)
 	apiRouter.GET("/dict/", handler.GetDict)

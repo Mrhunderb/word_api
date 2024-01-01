@@ -81,5 +81,6 @@ type History struct {
 	WordID      int32     `gorm:"type:int"`
 	PlanID      int32     `gorm:"type:int"`
 	StartTime   time.Time `gorm:"autoCreateTime"`
+	UpdateTime  time.Time `gorm:"autoUpdateTime"`
 	Proficiency int32     `gorm:"type:int;Default:0"`
 }

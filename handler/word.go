@@ -90,13 +90,35 @@ func AddCollectWord(c *gin.Context) {
 	})
 }
 
+func DeletCollect(c *gin.Context) {
+	var err error
+	user := c.Query("user_id")
+	word := c.Query("word_id")
+	user_id, _ := strconv.Atoi(user)
+	word_id, _ := strconv.Atoi(word)
+	err = db.DeletCollection(user_id, word_id)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"StatusCode": 1,
+			"StatusMsg":  err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"StatusCode": 0,
+		"StatusMsg":  "删除成功",
+	})
+}
+
 func AddHistory(c *gin.Context) {
 	var err error
 	plan_id := c.Query("plan_id")
 	word_id := c.Query("word_id")
+	is_know := c.Query("is_know")
 	plan_id_int, _ := strconv.Atoi(plan_id)
 	word_id_int, _ := strconv.Atoi(word_id)
-	err = db.AddUserHistory(plan_id_int, word_id_int)
+	is_know_int, _ := strconv.Atoi(is_know)
+	err = db.AddUserHistory(plan_id_int, word_id_int, is_know_int)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"StatusCode": 1,

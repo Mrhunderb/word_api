@@ -198,6 +198,16 @@ func AddUserCollection(user_id int, word_id int) error {
 	return nil
 }
 
+func DeletCollection(user_id int, word_id int) error {
+	var collection Collection
+	result := DB.First(&collection, "user_id = ? AND word_id = ?", user_id, word_id)
+	if result.Error != nil {
+		return fmt.Errorf("该生词不存在")
+	}
+	DB.Delete(&collection)
+	return nil
+}
+
 func UpdateUserPlan(user_id int, plan_id int) error {
 	result := DB.First(&User{}, "user_id = ?", user_id).Update("plan_id", plan_id)
 	if result.Error != nil {
@@ -206,15 +216,19 @@ func UpdateUserPlan(user_id int, plan_id int) error {
 	return nil
 }
 
-func AddUserHistory(plan_id int, word_id int) error {
+func AddUserHistory(plan_id int, word_id int, is_know int) error {
 	var history History
+	var plan Plan
 	result := DB.First(&history, "plan_id = ? AND word_id = ?", plan_id, word_id)
 	if result.Error == nil {
-		DB.Model(&history).Update("Proficiency", history.Proficiency+1)
+		DB.Model(&history).Update("Proficiency", history.Proficiency+int32(is_know))
 	} else {
+		DB.First(&plan, "plan_id = ?", plan_id)
+		DB.Model(&plan).Update("progress", plan.Progress+1)
 		DB.Create(&History{
-			PlanID: int32(plan_id),
-			WordID: int32(word_id),
+			PlanID:      int32(plan_id),
+			WordID:      int32(word_id),
+			Proficiency: int32(is_know),
 		})
 	}
 	return nil
