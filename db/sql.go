@@ -60,6 +60,7 @@ func InsertUser(username string, password string) (*User, error) {
 		DB.Create(&User{
 			UserName: username,
 			Password: password,
+			PlanID:   0,
 		})
 		return &user, nil
 	}
@@ -256,4 +257,34 @@ func GetTodyReview(plan_id int) (int, error) {
 		return 0, fmt.Errorf("无记录")
 	}
 	return int(n), nil
+}
+
+func GetReviwWord(plan_id int, limit int) ([]*Word, error) {
+	var words []*Word
+	today := time.Now().Format("2006-01-02")
+	subquery := DB.Model(&History{}).Where("plan_id = ?", plan_id).
+		Where("DATE(start_time) != ?", today).Where("proficiency < ?", 3).Select("word_id")
+	result := DB.Preload("Definition").Preload("Example").
+		Where("word_id IN (?)", subquery).Limit(limit).Find(&words)
+	if result.Error != nil {
+		return nil, fmt.Errorf("无记录")
+	}
+	return words, nil
+}
+
+func GetHistoryInfo(user_id string) (total int, total_day int, err error) {
+	var n int64
+	subquery := DB.Model(&Plan{}).Where("user_id = ?", user_id).Select("plan_id")
+	result := DB.Model(&History{}).Where("plan_id IN (?)", subquery).Count(&n)
+	if result.Error != nil {
+		return 0, 0, fmt.Errorf("无记录")
+	}
+	total_words := int(n)
+	result = DB.Model(&History{}).Where("plan_id IN (?)", subquery).
+		Select("DATE(start_time)").Group("DATE(start_time)").Count(&n)
+	if result.Error != nil {
+		return 0, 0, fmt.Errorf("无记录")
+	}
+	total_day = int(n)
+	return total_words, total_day, nil
 }

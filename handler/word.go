@@ -29,12 +29,22 @@ func GetWordToday(c *gin.Context) {
 	}
 	if err != nil {
 		c.JSON(200, gin.H{
-			"Words": nil,
+			"Words":  nil,
+			"Review": nil,
+		})
+		return
+	}
+	review, err := db.GetReviwWord(plan_id_int, int(plan.NReview))
+	if err != nil {
+		c.JSON(200, gin.H{
+			"Words":  words,
+			"Review": nil,
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"Words": words,
+		"Words":  words,
+		"Review": review,
 	})
 }
 

@@ -14,7 +14,6 @@ type User struct {
 	UserName  string         `gorm:"type:varchar(50)"`
 	Password  string         `gorm:"type:varchar(50)"`
 	PlanID    int32          `gorm:"type:int"`
-	Plan      []Plan         `gorm:"foreignKey:UserID"`
 }
 
 type Dict struct {

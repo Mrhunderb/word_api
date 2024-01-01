@@ -17,6 +17,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/user/info/", handler.GetInfo)
 	apiRouter.GET("/user/collect/", handler.GetCollectWord)
 	apiRouter.GET("/user/plan/", handler.GetUserPlan)
+	apiRouter.GET("/user/history/", handler.HistoryInfo)
 
 	apiRouter.POST("/collect/add/", handler.AddCollectWord)
 	apiRouter.POST("/collect/delete/", handler.DeletCollect)
