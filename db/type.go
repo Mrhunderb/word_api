@@ -75,3 +75,11 @@ type Collection struct {
 	UserID       int32     `gorm:"type:int"`
 	AddTime      time.Time `gorm:"autoCreateTime"`
 }
+
+type History struct {
+	HistoryID   int32     `gorm:"type:int;primaryKey;autoIncrement:true"`
+	WordID      int32     `gorm:"type:int"`
+	PlanID      int32     `gorm:"type:int"`
+	StartTime   time.Time `gorm:"autoCreateTime"`
+	Proficiency int32     `gorm:"type:int;Default:0"`
+}

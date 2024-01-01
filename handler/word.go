@@ -69,3 +69,43 @@ func GetCollectWord(c *gin.Context) {
 		"Words": words,
 	})
 }
+
+func AddCollectWord(c *gin.Context) {
+	var err error
+	user := c.Query("user_id")
+	word := c.Query("word_id")
+	user_id, _ := strconv.Atoi(user)
+	word_id, _ := strconv.Atoi(word)
+	err = db.AddUserCollection(user_id, word_id)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"StatusCode": 1,
+			"StatusMsg":  err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"StatusCode": 0,
+		"StatusMsg":  "添加成功",
+	})
+}
+
+func AddHistory(c *gin.Context) {
+	var err error
+	plan_id := c.Query("plan_id")
+	word_id := c.Query("word_id")
+	plan_id_int, _ := strconv.Atoi(plan_id)
+	word_id_int, _ := strconv.Atoi(word_id)
+	err = db.AddUserHistory(plan_id_int, word_id_int)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"StatusCode": 1,
+			"StatusMsg":  err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"StatusCode": 0,
+		"StatusMsg":  "添加成功",
+	})
+}

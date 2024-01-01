@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/actionX/api/db"
 	"github.com/gin-gonic/gin"
@@ -84,24 +83,5 @@ func GetInfo(c *gin.Context) {
 		UserID:     int(user.UserID),
 		UserName:   user.UserName,
 		PlanID:     int(user.PlanID),
-	})
-}
-
-func GetPlan(c *gin.Context) {
-	user_id := c.Query("user_id")
-	id, _ := strconv.Atoi(user_id)
-	plan, err := db.FindPlanByUserID(id)
-	if plan == nil {
-		c.JSON(http.StatusOK, gin.H{
-			"StatusCode": 1,
-			"StatusMsg":  err.Error(),
-			"Plan":       nil,
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"StatusCode": 0,
-		"StatusMsg":  "",
-		"Plan":       plan,
 	})
 }

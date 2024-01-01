@@ -16,12 +16,17 @@ func initRouter(r *gin.Engine) {
 	apiRouter.POST("/user/register/", handler.Register)
 	apiRouter.GET("/user/info/", handler.GetInfo)
 	apiRouter.GET("/user/collect/", handler.GetCollectWord)
+	apiRouter.GET("/user/plan/", handler.GetUserPlan)
+
+	apiRouter.POST("/collect/add/", handler.AddCollectWord)
 
 	apiRouter.GET("/dict/list/", handler.DictList)
 	apiRouter.GET("/dict/", handler.GetDict)
 
 	apiRouter.GET("/plan/", handler.GetPlan)
+	apiRouter.POST("/plan/change/", handler.ChangePlan)
 
 	apiRouter.GET("/word/today/", handler.GetWordToday)
 	apiRouter.GET("/word/all/", handler.GetAllWord)
+	apiRouter.POST("/word/history/", handler.AddHistory)
 }

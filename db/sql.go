@@ -16,7 +16,7 @@ func Connect() {
 	}
 	DB = db
 	DB.AutoMigrate(&Dict{}, &User{}, &Word{}, &Example{},
-		&Definition{}, &Plan{}, &Quiz{}, &Collection{})
+		&Definition{}, &Plan{}, &Quiz{}, &Collection{}, &History{})
 	fmt.Println("Database connection successful.")
 }
 
@@ -89,6 +89,37 @@ func FindPlan(plan_id string) (*Plan, error) {
 	}
 }
 
+func FindPlanByID(user_id string, dict_id string) (*Plan, error) {
+	var plan Plan
+	result := DB.First(&plan, "user_id = ? AND dict_id = ?", user_id, dict_id)
+	if result.Error == nil {
+		return &plan, nil
+	} else {
+		return nil, fmt.Errorf("计划不存在")
+	}
+}
+
+func AddPlan(user_id int, dict_id int, mode int, n_learn int, n_review int) (*Plan, error) {
+	plan := Plan{
+		UserID:   int32(user_id),
+		DictID:   int32(dict_id),
+		Mode:     int8(mode),
+		NLearn:   int32(n_learn),
+		NReview:  int32(n_review),
+		Progress: 0,
+	}
+	DB.Create(&plan)
+	return &plan, nil
+}
+
+func UpdatePlan(plan Plan, mode int, n_learn int, n_review int) (*Plan, error) {
+	plan.Mode = int8(mode)
+	plan.NLearn = int32(n_learn)
+	plan.NReview = int32(n_review)
+	DB.Save(&plan)
+	return &plan, nil
+}
+
 func FindDict(dict_id int) (*Dict, error) {
 	var dict Dict
 	result := DB.First(&dict, "dict_id = ?", dict_id)
@@ -102,7 +133,7 @@ func FindDict(dict_id int) (*Dict, error) {
 func FindWordByAlpha(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
 	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
-		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Order("word").Find(&words)
+		Limit(limit).Offset(offset).Where("dict_id = ?", dict_id).Order("word").Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
@@ -113,7 +144,7 @@ func FindWordByAlpha(dict_id int, limit int, offset int) ([]*Word, error) {
 func FindWordByAlphaDesc(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
 	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
-		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Order("word DESC").Find(&words)
+		Limit(limit).Offset(offset).Where("dict_id = ?", dict_id).Order("word DESC").Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
@@ -124,7 +155,7 @@ func FindWordByAlphaDesc(dict_id int, limit int, offset int) ([]*Word, error) {
 func FindWordByRandom(dict_id int, limit int, offset int) ([]*Word, error) {
 	var words []*Word
 	result := DB.Preload("Definition").Preload("Example").Preload("Quiz").
-		Limit(limit+1).Offset(offset).Where("dict_id = ?", dict_id).Find(&words)
+		Limit(limit).Offset(offset).Where("dict_id = ?", dict_id).Find(&words)
 	if result.Error == nil {
 		return words, nil
 	} else {
@@ -152,4 +183,39 @@ func FindUserCollection(user_id string) ([]*Word, error) {
 	} else {
 		return nil, fmt.Errorf("生词本为空")
 	}
+}
+
+func AddUserCollection(user_id int, word_id int) error {
+	var collection Collection
+	result := DB.First(&collection, "user_id = ? AND word_id = ?", user_id, word_id)
+	if result.Error == nil {
+		return fmt.Errorf("该生词已存在")
+	}
+	DB.Create(&Collection{
+		UserID: int32(user_id),
+		WordID: int32(word_id),
+	})
+	return nil
+}
+
+func UpdateUserPlan(user_id int, plan_id int) error {
+	result := DB.First(&User{}, "user_id = ?", user_id).Update("plan_id", plan_id)
+	if result.Error != nil {
+		return fmt.Errorf("用户不存在")
+	}
+	return nil
+}
+
+func AddUserHistory(plan_id int, word_id int) error {
+	var history History
+	result := DB.First(&history, "plan_id = ? AND word_id = ?", plan_id, word_id)
+	if result.Error == nil {
+		DB.Model(&history).Update("Proficiency", history.Proficiency+1)
+	} else {
+		DB.Create(&History{
+			PlanID: int32(plan_id),
+			WordID: int32(word_id),
+		})
+	}
+	return nil
 }
