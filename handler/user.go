@@ -12,6 +12,7 @@ type UserRespon struct {
 	StatusMsg  string
 	UserID     int
 	UserName   string
+	PlanID     int
 }
 
 type InfoRespon struct {
@@ -61,6 +62,7 @@ func Login(c *gin.Context) {
 		StatusMsg:  "",
 		UserID:     int(user.UserID),
 		UserName:   user.UserName,
+		PlanID:     int(user.PlanID),
 	})
 }
 

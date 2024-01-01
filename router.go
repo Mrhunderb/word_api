@@ -28,6 +28,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter.POST("/plan/change/", handler.ChangePlan)
 
 	apiRouter.GET("/word/today/", handler.GetWordToday)
+	apiRouter.GET("/word/today/learn", handler.GetTodyLearn)
 	apiRouter.GET("/word/all/", handler.GetAllWord)
 	apiRouter.POST("/word/history/", handler.AddHistory)
 }

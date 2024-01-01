@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -232,4 +233,27 @@ func AddUserHistory(plan_id int, word_id int, is_know int) error {
 		})
 	}
 	return nil
+}
+
+func GetTodyLearn(plan_id int) (int, error) {
+	var n int64
+	today := time.Now().Format("2006-01-02")
+	result := DB.Model(&History{}).Where("plan_id = ?", plan_id).
+		Where("DATE(start_time) = ?", today).Count(&n)
+	if result.Error != nil {
+		return 0, fmt.Errorf("无记录")
+	}
+	return int(n), nil
+}
+
+func GetTodyReview(plan_id int) (int, error) {
+	var n int64
+	today := time.Now().Format("2006-01-02")
+	result := DB.Model(&History{}).Where("plan_id = ?", plan_id).
+		Where("DATE(start_time) != ?", today).
+		Where("DATE(update_time) = ? ", today).Count(&n)
+	if result.Error != nil {
+		return 0, fmt.Errorf("无记录")
+	}
+	return int(n), nil
 }

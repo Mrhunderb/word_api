@@ -11,6 +11,7 @@ func GetWordToday(c *gin.Context) {
 	var words []*db.Word
 	var err error
 	plan_id := c.Query("plan_id")
+	plan_id_int, _ := strconv.Atoi(plan_id)
 	plan, err := db.FindPlan(plan_id)
 	if err != nil {
 		c.JSON(200, gin.H{
@@ -18,12 +19,13 @@ func GetWordToday(c *gin.Context) {
 		})
 		return
 	}
+	n, _ := db.GetTodyLearn(plan_id_int)
 	if plan.Mode == 1 {
-		words, err = db.FindWordByAlpha(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+		words, err = db.FindWordByAlpha(int(plan.DictID), int(plan.NLearn), int(plan.Progress)-n)
 	} else if plan.Mode == 2 {
-		words, err = db.FindWordByAlphaDesc(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+		words, err = db.FindWordByAlphaDesc(int(plan.DictID), int(plan.NLearn), int(plan.Progress)-n)
 	} else if plan.Mode == 3 {
-		words, err = db.FindWordByRandom(int(plan.DictID), int(plan.NLearn), int(plan.Progress))
+		words, err = db.FindWordByRandom(int(plan.DictID), int(plan.NLearn), int(plan.Progress)-n)
 	}
 	if err != nil {
 		c.JSON(200, gin.H{
@@ -129,5 +131,26 @@ func AddHistory(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"StatusCode": 0,
 		"StatusMsg":  "添加成功",
+	})
+}
+
+func GetTodyLearn(c *gin.Context) {
+	var err error
+	plan_id := c.Query("plan_id")
+	plan_id_int, _ := strconv.Atoi(plan_id)
+	n_learn, _ := db.GetTodyLearn(plan_id_int)
+	n_review, err := db.GetTodyReview(plan_id_int)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"StatusCode": 1,
+			"StatusMsg":  err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"StatusCode": 0,
+		"StatusMsg":  "",
+		"n_learn":    n_learn,
+		"n_review":   n_review,
 	})
 }
