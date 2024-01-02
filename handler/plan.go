@@ -77,6 +77,7 @@ func ChangePlan(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"StatusCode": 0,
 			"StatusMsg":  "",
+			"PlanId":     0,
 		})
 		return
 	}
@@ -85,5 +86,6 @@ func ChangePlan(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"StatusCode": 0,
 		"StatusMsg":  "",
+		"PlanId":     plan.PlanID,
 	})
 }

@@ -263,7 +263,7 @@ func GetReviwWord(plan_id int, limit int) ([]*Word, error) {
 	var words []*Word
 	today := time.Now().Format("2006-01-02")
 	subquery := DB.Model(&History{}).Where("plan_id = ?", plan_id).
-		Where("DATE(start_time) != ?", today).Where("proficiency < ?", 3).Select("word_id")
+		Where("DATE(start_time) != ?", today).Where("proficiency < ?", 4).Select("word_id")
 	result := DB.Preload("Definition").Preload("Example").
 		Where("word_id IN (?)", subquery).Limit(limit).Find(&words)
 	if result.Error != nil {
